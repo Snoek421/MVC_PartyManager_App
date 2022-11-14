@@ -1,0 +1,23 @@
+﻿@model Invitation
+
+@{
+	ViewData["Title"] = "Invitation Response";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p><strong>You have been invited to the "@Model.Party.Description" party!</strong></p>
+<p>Hey @Model.GuestName, you have been invited to the "@Model.Party.Description" gathering at @Model.Party.Location on @Model.Party.EventDate?.ToShortDateString()</p>
+
+<form asp-controller="Parties" asp-action="RespondToInvite" method="post" enctype="application/x-www-form-urlencoded">
+	<div class="form-group">
+		<input type="hidden" asp-for="PartyID" value="@Model.PartyID" />
+		<input type="hidden" asp-for="InvitationID" value="@Model.InvitationID" />
+		<input type="hidden" asp-for="GuestName" value="@Model.GuestName" />
+		<input type="hidden" asp-for="GuestEmail" value="@Model.GuestEmail" />
+		Will you attend?
+		@Html.RadioButtonFor(m => m.InviteStatus, InviteStatus.RespondedYes)Yes
+		@Html.RadioButtonFor(m => m.InviteStatus, InviteStatus.RespondedNo)No
+		<button type="submit" class="btn btn-primary">Submit response</button>
+	</div>
+</form>

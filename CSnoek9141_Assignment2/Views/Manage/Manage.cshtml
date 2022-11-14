@@ -1,0 +1,83 @@
+﻿@model PartyViewModel
+
+@{
+	ViewData["Title"] = "Manage your party";
+
+	int notSent = 0;
+	int sent = 0;
+	int yes = 0;
+	int no = 0;
+	if (Model.Invitations != null && Model.Invitations.Count() > 0) //if invitations list isn't null and there is at least 1 invitation in it, then count each status
+	{
+		 notSent = @Model.ActiveParty.Invitations.Count(i => i.InviteStatus == InviteStatus.InviteNotSent);
+		 sent = @Model.ActiveParty.Invitations.Count(i => i.InviteStatus == InviteStatus.InviteSent);
+		 yes = @Model.ActiveParty.Invitations.Count(i => i.InviteStatus == InviteStatus.RespondedYes);
+		 no = @Model.ActiveParty.Invitations.Count(i => i.InviteStatus == InviteStatus.RespondedNo);
+	}
+	
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<a asp-controller="Parties" asp-action="GetParties">All parties</a> |
+<a asp-controller="Parties" asp-action="GetEditForm" asp-route-id="@Model.ActivePartyID">Edit this party</a> |
+<a asp-controller="Parties" asp-action="GetNewPartyForm">Add new party</a>
+
+<p><strong>Party summary:</strong></p>
+<p>The party: "@Model.ActiveParty.Description" is at @Model.ActiveParty.Location on @Model.ActiveParty.EventDate?.ToShortDateString()</p>
+<p>Invites not sent: @notSent | Sent count: @sent | Yes count: @yes | No count: @no </p>
+@if (TempData["alert"] != null) //if tempdata is not null then display a dismissable alert showing that an invite was added or emails were sent
+{
+	<div class="alert alert-success alert-dismissible fade show" role="alert">
+		<button type="button" class="btn-close" aria-label="Close" label data-bs-dismiss="alert"></button>
+		<strong>Success!</strong> @TempData["alert"] 
+	</div>
+}
+<p><strong>Invitations:</strong></p>
+@if (Model.Invitations.Count() == 0)
+{
+	<p>No invitations yet - you should create some!</p>
+	//if no invites, display different message
+}
+else //if at least 1 invite, make a table to display the invites
+{
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>Guest name</th>
+				<th>Guest email</th>
+				<th>Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (Invitation invite in @Model.Invitations)
+			{
+				<tr>
+					<td>@invite.GuestName</td>
+					<td>@invite.GuestEmail</td>
+					<td>@invite.GetStatus()</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+<form asp-controller="Manage" asp-action="AddInvite" asp-route-id="@Model.ActivePartyID" method="post" enctype="application/x-www-form-urlencoded">
+	<div class="text-danger" asp-validation-summary="All"></div>
+	<div class="form-group">
+		<input type="hidden" asp-for="ActivePartyID" value="@Model.ActivePartyID" />
+		<input type="hidden" asp-for="NewInvitation.PartyID" />
+		<input type="hidden" asp-for="NewInvitation.InvitationID" />
+		<label asp-for="NewInvitation.GuestName">Guest name:</label> <input type="text" asp-for="NewInvitation.GuestName" class="form-control-sm" />
+		<label asp-for="NewInvitation.GuestEmail">Guest email:</label> <input type="text" asp-for="NewInvitation.GuestEmail" class="form-control-sm" />
+		<button type="submit" class="btn btn-primary">Create invitation</button>
+	</div>
+</form>
+
+
+<h3>Actions:</h3>
+<form asp-controller="Manage" asp-action="SendInvitations" asp-route-id="@Model.ActivePartyID" method="post" enctype="application/x-www-form-urlencoded">
+	<div class="form-group">
+		@Html.HiddenFor(m => m.ActivePartyID) @*ready the party's id to be used to retrieve the party's invitations to pass to the email sending method*@
+		<button type="submit" class="btn btn-primary">Send invitations</button> 
+	</div>
+</form>

@@ -1,0 +1,35 @@
+﻿@model List<Party>
+
+@{
+	ViewData["Title"] = "All my parties";
+}
+
+<h2>@ViewData["Title"]</h2>
+<a asp-controller="Parties" asp-action="GetNewPartyForm">Add a new party</a>
+<table class="table table-bordered table-striped">
+	<thead>
+		<tr>
+			<th>Description</th>
+			<th>Date</th>
+			<th>Location</th>
+			<th># of Invites</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach(var party in Model) //create a row in the table for each party, showing its details and invitation count, and links to manage and edit pages
+		{
+			<tr>
+				<td>@party.Description</td>
+				<td>@party.EventDate</td>
+				<td>@party.Location</td>
+				<td>@party.Invitations.Count()</td>
+				<td>
+					<a asp-controller="Manage" asp-action="ManageParty" asp-route-id="@party.PartyID">Manage</a>
+					<span class="action-spacer mx-1">|</span>
+					<a asp-controller="Parties" asp-action="GetEditForm" asp-route-id="@party.PartyID">Edit</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
