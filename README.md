@@ -7,3 +7,5 @@ First step is make sure the database connection string fits what SQL you have in
 Second step is to run Update-Database in the Nuget console.
 
 Third step is to try running it.
+
+Fourth step is add your gmail account and app password to the email sending service class if you want to be able to test the email sending portion.
